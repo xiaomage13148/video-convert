@@ -3,7 +3,7 @@ const path = require('path');
 const {Worker} = require('worker_threads');
 
 // 指定 .ts 文件所在的目录
-const inputDir = 'F:\\我的下载\\我的视频\\真人\\2023-03-18'; // 你的视频目录路径
+const inputDir = 'D:\\NDM下载\\Video'; // 你的视频目录路径
 
 function runWorker(filePath, outputFilePath) {
     return new Promise((resolve, reject) => {
