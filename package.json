@@ -3,26 +3,30 @@
   "private": true,
   "version": "1.0.0",
   "description": "视频格式批量转换工具 - CUDA硬件加速",
+  "author": "xiaomage",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron:build": "vite build && electron-builder"
+    "postinstall": "cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ electron-builder install-app-deps",
+    "generate-icons": "node build/generate-icons.mjs",
+    "electron:build": "vite build && cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder --win"
   },
   "dependencies": {
     "lucide-vue-next": "^0.344.0",
     "pinia": "^2.1.7",
     "tdesign-vue-next": "^1.9.9",
-    "video-convert-pro": "file:",
     "vue": "^3.4.21"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^10.1.0",
     "electron": "^28.2.0",
     "electron-builder": "^24.9.1",
     "postcss": "^8.5.1",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^2.5.5",
     "tailwindcss": "3.4.17",
     "tailwindcss-animate": "^1.0.7",

@@ -6,8 +6,10 @@ pnpm-lock.yaml
 
 # Build output
 dist/
+dist-electron/
 build/
 out/
+release/
 
 # IDE
 .idea/

@@ -7,10 +7,13 @@ files:
   - dist/**/*
   - dist-electron/**/*
   - "!node_modules"
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/
+buildDependenciesFromSource: false
 win:
+  icon: build/icon.png
   target:
     - nsis
-  icon: build/icon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
