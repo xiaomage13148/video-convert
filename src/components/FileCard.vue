@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { VideoFile, TaskStatus } from '../types'
-import {
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  Clock,
-  Ban,
-  FileVideo,
-} from 'lucide-vue-next'
+import {computed} from 'vue';
+import type {TaskStatus, VideoFile} from '../types';
+import {Ban, CheckCircle2, Clock, FileVideo, Loader2, XCircle,} from 'lucide-vue-next';
 
 const props = defineProps<{
   file: VideoFile
@@ -16,51 +9,53 @@ const props = defineProps<{
   progress?: number
   speed?: string
   error?: string
-}>()
+}>();
 
 const emit = defineEmits<{
   toggle: [path: string]
-}>()
+}>();
 
 const statusConfig = computed(() => {
   const map: Record<TaskStatus, { icon: any; color: string; label: string }> = {
-    waiting: { icon: Clock, color: 'text-slate-400', label: '等待中' },
-    converting: { icon: Loader2, color: 'text-blue-400', label: '转换中' },
-    success: { icon: CheckCircle2, color: 'text-emerald-400', label: '成功' },
-    failed: { icon: XCircle, color: 'text-red-400', label: '失败' },
-    cancelled: { icon: Ban, color: 'text-slate-500', label: '已取消' },
-  }
-  return map[props.status || 'waiting']
-})
+    waiting: {icon: Clock, color: 'text-slate-400', label: '等待中'},
+    converting: {icon: Loader2, color: 'text-blue-400', label: '转换中'},
+    success: {icon: CheckCircle2, color: 'text-emerald-400', label: '成功'},
+    failed: {icon: XCircle, color: 'text-red-400', label: '失败'},
+    cancelled: {icon: Ban, color: 'text-slate-500', label: '已取消'},
+  };
+  return map[props.status || 'waiting'];
+});
 
-const progressPercent = computed(() => props.progress || 0)
+const progressPercent = computed(() => props.progress || 0);
 
-const formatExt = (ext: string) => ext.replace('.', '').toUpperCase()
+const formatExt = (ext: string) => ext.replace('.', '').toUpperCase();
 </script>
 
 <template>
   <div
-    class="glass-panel glass-panel-hover p-3 flex items-center gap-3 transition-all duration-200 animate-fade-in"
-    :class="{ 'ring-1 ring-primary/30': file.selected && !status }"
-    @click="!status && emit('toggle', file.path)"
+      class="glass-panel glass-panel-hover p-3 flex items-center gap-3 transition-all duration-200 animate-fade-in"
+      :class="{ 'ring-1 ring-primary/30': file.selected && !status }"
+      @click="!status && emit('toggle', file.path)"
   >
     <!-- 勾选框 -->
     <div v-if="!status" class="flex-shrink-0">
       <div
-        class="w-4 h-4 rounded border transition-all duration-200 flex items-center justify-center"
-        :class="file.selected
+          class="w-4 h-4 rounded border transition-all duration-200 flex items-center justify-center"
+          :class="file.selected
           ? 'bg-primary border-primary'
           : 'border-slate-500 hover:border-slate-400'"
       >
-        <svg v-if="file.selected" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="20 6 9 17 4 12" />
+        <svg v-if="file.selected" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
     </div>
 
     <!-- 文件图标 -->
-    <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
-      <FileVideo :size="18" class="text-primary-lighter" />
+    <div
+        class="flex-shrink-0 w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
+      <FileVideo :size="18" class="text-primary-lighter"/>
     </div>
 
     <!-- 文件信息 -->
@@ -80,8 +75,8 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase()
       <div v-if="status === 'converting'" class="mt-2">
         <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
           <div
-            class="h-full progress-bar-flow rounded-full transition-all duration-300"
-            :style="{ width: `${progressPercent}%` }"
+              class="h-full progress-bar-flow rounded-full transition-all duration-300"
+              :style="{ width: `${progressPercent}%` }"
           />
         </div>
         <div class="flex items-center justify-between mt-1">
@@ -99,9 +94,9 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase()
     <!-- 状态图标 -->
     <div v-if="status" class="flex-shrink-0 flex items-center gap-1.5">
       <component
-        :is="statusConfig.icon"
-        :size="16"
-        :class="[statusConfig.color, status === 'converting' ? 'animate-spin' : '']"
+          :is="statusConfig.icon"
+          :size="16"
+          :class="[statusConfig.color, status === 'converting' ? 'animate-spin' : '']"
       />
       <span class="text-xs" :class="statusConfig.color">{{ statusConfig.label }}</span>
     </div>
