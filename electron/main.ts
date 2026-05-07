@@ -122,8 +122,9 @@ function registerIpcHandlers() {
   ipcMain.handle(IPC_CHANNELS.FFMPEG_CHECK, async () => {
     try {
       debugLog('FFMPEG_CHECK called')
+      debugLog(`PATH: ${process.env.PATH}`)
       const result = await checkFFmpeg()
-      debugLog(`FFmpeg result: available=${result.available}`)
+      debugLog(`FFmpeg result: available=${result.available}, path=${result.path}`)
       return result
     } catch (e: any) {
       debugLog(`FFMPEG_CHECK error: ${e?.message || e}`)
