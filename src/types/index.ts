@@ -5,6 +5,7 @@ export interface VideoFile {
     ext: string;
     size: number;
     sizeFormatted: string;
+    relativePath?: string;
     codec?: string;
     duration?: number;
     selected?: boolean;

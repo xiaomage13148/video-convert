@@ -85,11 +85,11 @@ function registerIpcHandlers() {
   })
 
   // 文件扫描
-  ipcMain.handle(IPC_CHANNELS.SCAN_DIRECTORY, async (_, dir: string) => {
+  ipcMain.handle(IPC_CHANNELS.SCAN_DIRECTORY, async (_, dir: string, recursive?: boolean) => {
     try {
-      debugLog(`SCAN_DIRECTORY called with: ${dir}`)
+      debugLog(`SCAN_DIRECTORY called with: ${dir}, recursive: ${recursive}`)
       addRecentDir(dir)
-      const result = scanDirectory(dir)
+      const result = scanDirectory(dir, recursive)
       debugLog(`Scan result: ${JSON.stringify(result).substring(0, 500)}`)
       return result
     } catch (e: any) {

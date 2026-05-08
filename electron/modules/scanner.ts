@@ -9,6 +9,7 @@ export interface ScannedFile {
   ext: string
   size: number
   sizeFormatted: string
+  relativePath?: string
 }
 
 function isSupportedVideoFile(file: string): boolean {
@@ -24,32 +25,42 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-export function scanDirectory(dir: string): ScannedFile[] {
+export function scanDirectory(dir: string, recursive = false, rootDir?: string): ScannedFile[] {
   if (!fs.existsSync(dir)) {
     return []
   }
+
+  const baseDir = rootDir || dir
 
   try {
     const files = fs.readdirSync(dir)
     const videoFiles: ScannedFile[] = []
 
     for (const file of files) {
-      if (!isSupportedVideoFile(file)) continue
-
       const filePath = path.join(dir, file)
       try {
         const stat = fs.statSync(filePath)
-        if (!stat.isFile()) continue
 
+        if (stat.isDirectory()) {
+          if (recursive) {
+            videoFiles.push(...scanDirectory(filePath, recursive, baseDir))
+          }
+          continue
+        }
+
+        if (!stat.isFile() || !isSupportedVideoFile(file)) continue
+
+        const relativePath = path.relative(baseDir, filePath)
         videoFiles.push({
           name: path.basename(file, path.extname(file)),
           path: filePath,
           ext: path.extname(file).toLowerCase(),
           size: stat.size,
           sizeFormatted: formatFileSize(stat.size),
+          relativePath: recursive && relativePath !== file ? relativePath : undefined,
         })
       } catch {
-        // 跳过无法访问的文件
+        // 跳过无法访问的文件/目录
       }
     }
 

@@ -18,7 +18,7 @@ export function useElectron() {
         selectDirectory: () => api.selectDirectory(),
 
         // 文件扫描
-        scanDirectory: (dir: string) => api.scanDirectory(dir) as Promise<VideoFile[]>,
+        scanDirectory: (dir: string, recursive?: boolean) => api.scanDirectory(dir, recursive) as Promise<VideoFile[]>,
 
         // 转换控制
         startConvert: (files: string[], settings: ConvertSettings) =>

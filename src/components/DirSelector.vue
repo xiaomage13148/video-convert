@@ -7,6 +7,7 @@ import {ref} from 'vue';
 const filesStore = useFilesStore();
 const electron = useElectron();
 const showRecent = ref(false);
+const recursiveScan = ref(false);
 
 async function selectDirectory() {
   try {
@@ -28,7 +29,7 @@ async function scanDir(dir: string) {
   showRecent.value = false;
   scanError.value = '';
   try {
-    const scannedFiles = await electron.scanDirectory(dir);
+    const scannedFiles = await electron.scanDirectory(dir, recursiveScan.value);
     filesStore.setFiles(scannedFiles);
     const dirs = await electron.getRecentDirs();
     filesStore.setRecentDirs(dirs);
@@ -37,6 +38,13 @@ async function scanDir(dir: string) {
     console.error('扫描目录失败:', e);
   } finally {
     filesStore.isLoading = false;
+  }
+}
+
+async function toggleRecursive() {
+  recursiveScan.value = !recursiveScan.value;
+  if (filesStore.currentDir) {
+    await scanDir(filesStore.currentDir);
   }
 }
 
@@ -68,6 +76,16 @@ loadRecentDirs();
         <FolderOpen :size="16"/>
         选择目录
       </button>
+
+      <label class="flex items-center gap-2 px-3 py-2.5 bg-white/5 rounded-lg text-sm text-slate-300 cursor-pointer hover:bg-white/8 transition-colors select-none">
+        <input
+            type="checkbox"
+            :checked="recursiveScan"
+            @change="toggleRecursive"
+            class="w-4 h-4 rounded border-slate-500 text-primary focus:ring-primary/50 bg-transparent"
+        />
+        递归子目录
+      </label>
 
       <div class="flex-1 relative">
         <div

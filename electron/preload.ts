@@ -6,7 +6,7 @@ const electronAPI = {
   selectDirectory: () => ipcRenderer.invoke(IPC_CHANNELS.DIALOG_SELECT_DIRECTORY),
 
   // 文件扫描
-  scanDirectory: (dir: string) => ipcRenderer.invoke(IPC_CHANNELS.SCAN_DIRECTORY, dir),
+  scanDirectory: (dir: string, recursive?: boolean) => ipcRenderer.invoke(IPC_CHANNELS.SCAN_DIRECTORY, dir, recursive),
 
   // 转换控制
   startConvert: (files: string[], settings: any) => ipcRenderer.invoke(IPC_CHANNELS.CONVERT_START, files, settings),

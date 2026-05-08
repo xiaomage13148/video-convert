@@ -9,7 +9,7 @@ declare module '*.vue' {
 interface Window {
     electronAPI: {
         selectDirectory: () => Promise<string | null>
-        scanDirectory: (dir: string) => Promise<import('./types').VideoFile[]>
+        scanDirectory: (dir: string, recursive?: boolean) => Promise<import('./types').VideoFile[]>
         startConvert: (files: string[], settings: import('./types').ConvertSettings) => Promise<void>
         pauseConvert: () => Promise<void>
         resumeConvert: () => Promise<void>
