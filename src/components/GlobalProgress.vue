@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue';
-import {useConvertStore} from '../stores/convert';
+import {useConvertStore} from '@/stores/convert';
 import {CheckCircle2, Clock, Loader2, XCircle} from 'lucide-vue-next';
 
 const convertStore = useConvertStore();
@@ -18,8 +18,8 @@ const hasTasks = computed(() => convertStore.totalCount > 0);
     </div>
     <div class="h-2 bg-white/5 rounded-full overflow-hidden mb-3">
       <div
-          class="h-full progress-bar-flow rounded-full transition-all duration-500"
           :style="{ width: `${totalProgress}%` }"
+          class="h-full progress-bar-flow rounded-full transition-all duration-500"
       />
     </div>
 

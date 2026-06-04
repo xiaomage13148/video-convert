@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue';
 import {Pause, Play, RotateCcw, Settings, Square} from 'lucide-vue-next';
 import {useFilesStore} from '@/stores/files';
@@ -29,8 +29,8 @@ const hasFailed = computed(() => convertStore.failedCount > 0);
     <!-- 开始/暂停按钮 -->
     <button
         v-if="!isConverting"
-        class="btn-glow flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-primary to-primary-light text-white rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
         :disabled="!canStart"
+        class="btn-glow flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-primary to-primary-light text-white rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
         @click="emit('start')"
     >
       <Play :size="16"/>
@@ -81,16 +81,16 @@ const hasFailed = computed(() => convertStore.failedCount > 0);
         <span>并发数:</span>
         <div class="flex items-center gap-1">
           <button
-              class="w-6 h-6 rounded bg-white/5 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-colors"
               :disabled="settingsStore.settings.concurrency <= 1"
+              class="w-6 h-6 rounded bg-white/5 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-colors"
               @click="settingsStore.updateSettings({ concurrency: settingsStore.settings.concurrency - 1 })"
           >
             -
           </button>
           <span class="w-6 text-center text-slate-300 font-mono">{{ settingsStore.settings.concurrency }}</span>
           <button
-              class="w-6 h-6 rounded bg-white/5 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-colors"
               :disabled="settingsStore.settings.concurrency >= 6"
+              class="w-6 h-6 rounded bg-white/5 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-colors"
               @click="settingsStore.updateSettings({ concurrency: settingsStore.settings.concurrency + 1 })"
           >
             +

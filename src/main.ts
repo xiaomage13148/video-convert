@@ -2,7 +2,7 @@ import {createApp} from 'vue';
 import {createPinia} from 'pinia';
 import TDesign from 'tdesign-vue-next';
 import 'tdesign-vue-next/es/style/index.css';
-import App from './App.vue';
+import App from '@/App.vue';
 import './styles/global.css';
 
 const app = createApp(App);

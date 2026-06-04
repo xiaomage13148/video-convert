@@ -1,7 +1,7 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {ChevronDown, Clock, FolderOpen} from 'lucide-vue-next';
-import {useFilesStore} from '../stores/files';
-import {useElectron} from '../composables/useElectron';
+import {useFilesStore} from '@/stores/files';
+import {useElectron} from '@/composables/useElectron';
 import {ref} from 'vue';
 
 const filesStore = useFilesStore();
@@ -77,12 +77,13 @@ loadRecentDirs();
         选择目录
       </button>
 
-      <label class="flex items-center gap-2 px-3 py-2.5 bg-white/5 rounded-lg text-sm text-slate-300 cursor-pointer hover:bg-white/8 transition-colors select-none">
+      <label
+          class="flex items-center gap-2 px-3 py-2.5 bg-white/5 rounded-lg text-sm text-slate-300 cursor-pointer hover:bg-white/8 transition-colors select-none">
         <input
-            type="checkbox"
             :checked="recursiveScan"
-            @change="toggleRecursive"
             class="w-4 h-4 rounded border-slate-500 text-primary focus:ring-primary/50 bg-transparent"
+            type="checkbox"
+            @change="toggleRecursive"
         />
         递归子目录
       </label>

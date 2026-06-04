@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import {computed, ref} from 'vue';
-import type {VideoFile} from '../types';
+import type {VideoFile} from '@/types';
 
 export const useFilesStore = defineStore('files', () => {
     const currentDir = ref('');

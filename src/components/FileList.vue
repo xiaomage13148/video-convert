@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue';
 import {useFilesStore} from '@/stores/files';
 import {useConvertStore} from '@/stores/convert';
 import {ArrowRightLeft, CheckSquare, Search, Square} from 'lucide-vue-next';
-import FileCard from './FileCard.vue';
+import FileCard from '@/components/FileCard.vue';
 
 const filesStore = useFilesStore();
 const convertStore = useConvertStore();
@@ -39,9 +39,9 @@ function getTaskForFile(path: string) {
         <Search :size="14" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500"/>
         <input
             v-model="filesStore.searchQuery"
-            type="text"
-            placeholder="搜索文件..."
             class="w-full pl-8 pr-3 py-1.5 bg-white/5 border border-white/5 rounded-lg text-sm text-slate-300 placeholder-slate-600 focus:outline-none focus:border-primary/30 transition-colors"
+            placeholder="搜索文件..."
+            type="text"
         />
       </div>
 
@@ -57,25 +57,25 @@ function getTaskForFile(path: string) {
 
       <div class="flex items-center gap-1">
         <button
+            :disabled="isConverting"
             class="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
             title="全选"
-            :disabled="isConverting"
             @click="filesStore.selectAll()"
         >
           <CheckSquare :size="14"/>
         </button>
         <button
+            :disabled="isConverting"
             class="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
             title="取消全选"
-            :disabled="isConverting"
             @click="filesStore.deselectAll()"
         >
           <Square :size="14"/>
         </button>
         <button
+            :disabled="isConverting"
             class="p-1.5 rounded-md text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
             title="反选"
-            :disabled="isConverting"
             @click="filesStore.invertSelection()"
         >
           <ArrowRightLeft :size="14"/>
@@ -86,8 +86,8 @@ function getTaskForFile(path: string) {
     <!-- 文件列表 -->
     <div class="flex-1 overflow-y-auto p-2 space-y-1.5">
       <div v-if="!hasFiles" class="flex flex-col items-center justify-center h-full text-slate-500">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
-             stroke-linecap="round" stroke-linejoin="round" class="mb-3 opacity-40">
+        <svg class="mb-3 opacity-40" fill="none" height="48" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+             stroke-width="1" viewBox="0 0 24 24" width="48">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
         </svg>
         <p class="text-sm">选择目录以扫描视频文件</p>

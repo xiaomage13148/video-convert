@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed, nextTick, ref, watch} from 'vue';
-import {useConvertStore} from '../stores/convert';
+import {useConvertStore} from '@/stores/convert';
 import {ArrowDown, Download, Search, Trash2} from 'lucide-vue-next';
 
 const convertStore = useConvertStore();
@@ -87,9 +87,9 @@ async function exportLogs() {
         <Search :size="12" class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500"/>
         <input
             v-model="searchQuery"
-            type="text"
-            placeholder="搜索日志..."
             class="w-full pl-7 pr-2 py-1 bg-white/5 border border-white/5 rounded text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-primary/30"
+            placeholder="搜索日志..."
+            type="text"
         />
       </div>
 
@@ -118,8 +118,8 @@ async function exportLogs() {
         <Trash2 :size="14"/>
       </button>
       <button
-          class="p-1 rounded transition-colors"
           :class="autoScroll ? 'text-primary hover:text-primary-light' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'"
+          class="p-1 rounded transition-colors"
           title="自动滚动"
           @click="autoScroll = !autoScroll"
       >
@@ -138,8 +138,8 @@ async function exportLogs() {
       >
         <span class="text-slate-600 flex-shrink-0">{{ formatTime(log.timestamp) }}</span>
         <span
-            class="px-1 rounded text-[10px] font-medium flex-shrink-0"
             :class="levelClass(log.level)"
+            class="px-1 rounded text-[10px] font-medium flex-shrink-0"
         >
           {{ levelLabel(log.level) }}
         </span>

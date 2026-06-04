@@ -1,15 +1,15 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {onMounted, onUnmounted, ref, toRaw} from 'vue';
-import {useFilesStore} from '../stores/files';
-import {useConvertStore} from '../stores/convert';
-import {useSettingsStore} from '../stores/settings';
-import {useElectron} from '../composables/useElectron';
-import DirSelector from '../components/DirSelector.vue';
-import FileList from '../components/FileList.vue';
-import GlobalProgress from '../components/GlobalProgress.vue';
-import ControlBar from '../components/ControlBar.vue';
-import LogPanel from '../components/LogPanel.vue';
-import SettingsPanel from '../components/SettingsPanel.vue';
+import {useFilesStore} from '@/stores/files';
+import {useConvertStore} from '@/stores/convert';
+import {useSettingsStore} from '@/stores/settings';
+import {useElectron} from '@/composables/useElectron';
+import DirSelector from '@/components/DirSelector.vue';
+import FileList from '@/components/FileList.vue';
+import GlobalProgress from '@/components/GlobalProgress.vue';
+import ControlBar from '@/components/ControlBar.vue';
+import LogPanel from '@/components/LogPanel.vue';
+import SettingsPanel from '@/components/SettingsPanel.vue';
 
 const filesStore = useFilesStore();
 const convertStore = useConvertStore();
@@ -140,8 +140,8 @@ async function handleRetry() {
 
 <template>
   <div
-      class="flex flex-col h-screen bg-[#0F0F1A]"
       :class="{ 'drag-highlight': isDragOver }"
+      class="flex flex-col h-screen bg-[#0F0F1A]"
   >
     <!-- 目录选择 -->
     <div class="p-4 pb-2">
@@ -156,11 +156,11 @@ async function handleRetry() {
     <!-- 控制栏 -->
     <div class="px-4 pb-2">
       <ControlBar
-          @start="handleStart"
+          @cancel="handleCancel"
           @pause="handlePause"
           @resume="handleResume"
-          @cancel="handleCancel"
           @retry="handleRetry"
+          @start="handleStart"
           @open-settings="showSettings = true"
       />
     </div>
@@ -184,11 +184,11 @@ async function handleRetry() {
         class="fixed inset-0 z-40 bg-primary/5 border-2 border-dashed border-primary/40 flex items-center justify-center pointer-events-none"
     >
       <div class="text-center animate-pulse-glow p-8 glass-panel">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-             stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-3 text-primary-lighter">
+        <svg class="mx-auto mb-3 text-primary-lighter" fill="none" height="48" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+             stroke-width="1.5" viewBox="0 0 24 24" width="48">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
           <polyline points="17 8 12 3 7 8"/>
-          <line x1="12" y1="3" x2="12" y2="15"/>
+          <line x1="12" x2="12" y1="3" y2="15"/>
         </svg>
         <p class="text-primary-lighter font-medium">拖放视频目录到此处</p>
       </div>

@@ -1,5 +1,5 @@
 import {onUnmounted} from 'vue';
-import type {CompleteStats, ConvertSettings, GPUInfo, LogEntry, ProgressData, StatusData, VideoFile} from '../types';
+import type {CompleteStats, ConvertSettings, GPUInfo, LogEntry, ProgressData, StatusData, VideoFile} from '@/types';
 
 const api = window.electronAPI;
 

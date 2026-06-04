@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import {computed, ref} from 'vue';
-import type {ConvertTask, LogEntry, ProgressData, StatusData} from '../types';
+import type {ConvertTask, LogEntry, ProgressData, StatusData} from '@/types';
 
 export const useConvertStore = defineStore('convert', () => {
     const taskList = ref<ConvertTask[]>([]);

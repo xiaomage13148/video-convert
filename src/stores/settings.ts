@@ -1,6 +1,6 @@
 import {defineStore} from 'pinia';
 import {computed, ref} from 'vue';
-import type {ConvertSettings, GPUInfo, Preset} from '../types';
+import type {ConvertSettings, GPUInfo, Preset} from '@/types';
 
 const DEFAULT_SETTINGS: ConvertSettings = {
     encoder: 'h264_nvenc',

@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue';
-import type {TaskStatus, VideoFile} from '../types';
+import type {TaskStatus, VideoFile} from '@/types';
 import {Ban, CheckCircle2, Clock, FileVideo, Loader2, XCircle,} from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -33,20 +33,20 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase();
 
 <template>
   <div
-      class="glass-panel glass-panel-hover p-3 flex items-center gap-3 transition-all duration-200 animate-fade-in"
       :class="{ 'ring-1 ring-primary/30': file.selected && !status }"
+      class="glass-panel glass-panel-hover p-3 flex items-center gap-3 transition-all duration-200 animate-fade-in"
       @click="!status && emit('toggle', file.path)"
   >
     <!-- 勾选框 -->
     <div v-if="!status" class="flex-shrink-0">
       <div
-          class="w-4 h-4 rounded border transition-all duration-200 flex items-center justify-center"
           :class="file.selected
           ? 'bg-primary border-primary'
           : 'border-slate-500 hover:border-slate-400'"
+          class="w-4 h-4 rounded border transition-all duration-200 flex items-center justify-center"
       >
-        <svg v-if="file.selected" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"
-             stroke-linecap="round" stroke-linejoin="round">
+        <svg v-if="file.selected" fill="none" height="10" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+             viewBox="0 0 24 24" width="10">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
       </div>
@@ -75,8 +75,8 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase();
       <div v-if="status === 'converting'" class="mt-2">
         <div class="h-1.5 bg-white/5 rounded-full overflow-hidden">
           <div
-              class="h-full progress-bar-flow rounded-full transition-all duration-300"
               :style="{ width: `${progressPercent}%` }"
+              class="h-full progress-bar-flow rounded-full transition-all duration-300"
           />
         </div>
         <div class="flex items-center justify-between mt-1">
@@ -95,10 +95,10 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase();
     <div v-if="status" class="flex-shrink-0 flex items-center gap-1.5">
       <component
           :is="statusConfig.icon"
-          :size="16"
           :class="[statusConfig.color, status === 'converting' ? 'animate-spin' : '']"
+          :size="16"
       />
-      <span class="text-xs" :class="statusConfig.color">{{ statusConfig.label }}</span>
+      <span :class="statusConfig.color" class="text-xs">{{ statusConfig.label }}</span>
     </div>
   </div>
 </template>

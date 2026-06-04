@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue';
 import {Cpu, HardDrive, Trash2, Volume2, X, Zap} from 'lucide-vue-next';
 import {PRESETS, useSettingsStore} from '@/stores/settings';
@@ -39,10 +39,10 @@ function selectPreset(name: string) {
           <button
               v-for="preset in PRESETS"
               :key="preset.name"
-              class="p-3 rounded-lg border transition-all duration-200 text-center"
               :class="settingsStore.activePreset === preset.name
               ? 'border-primary/50 bg-primary/10 text-primary-lighter glow-primary'
               : 'border-white/5 bg-white/3 text-slate-400 hover:bg-white/5 hover:text-slate-300'"
+              class="p-3 rounded-lg border transition-all duration-200 text-center"
               @click="selectPreset(preset.name)"
           >
             <Zap :size="18" class="mx-auto mb-1"/>
@@ -90,11 +90,11 @@ function selectPreset(name: string) {
             <label class="text-sm text-slate-400 w-16">质量</label>
             <input
                 v-model.number="settingsStore.settings.quality"
-                type="range"
-                :min="isNVENC ? 15 : 18"
                 :max="isNVENC ? 35 : 28"
+                :min="isNVENC ? 15 : 18"
                 :step="1"
                 class="flex-1 accent-primary"
+                type="range"
             />
             <span class="text-sm text-slate-300 w-8 text-right font-mono">{{ settingsStore.settings.quality }}</span>
           </div>
@@ -126,13 +126,13 @@ function selectPreset(name: string) {
           <label class="relative inline-flex items-center cursor-pointer">
             <input
                 v-model="settingsStore.settings.cudaEnabled"
-                type="checkbox"
-                class="sr-only peer"
                 :disabled="!settingsStore.isCUDAAvailable"
+                class="sr-only peer"
+                type="checkbox"
             />
             <div
-                class="w-9 h-5 rounded-full transition-colors duration-200 peer-checked:bg-primary peer-focus:ring-2 peer-focus:ring-primary/30"
                 :class="!settingsStore.isCUDAAvailable ? 'bg-slate-600 opacity-50' : 'bg-slate-600'"
+                class="w-9 h-5 rounded-full transition-colors duration-200 peer-checked:bg-primary peer-focus:ring-2 peer-focus:ring-primary/30"
             />
             <div
                 class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 peer-checked:translate-x-4"
@@ -153,7 +153,7 @@ function selectPreset(name: string) {
             <span class="text-sm text-slate-300">音频直接复制</span>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input v-model="settingsStore.settings.audioCopy" type="checkbox" class="sr-only peer"/>
+            <input v-model="settingsStore.settings.audioCopy" class="sr-only peer" type="checkbox"/>
             <div
                 class="w-9 h-5 rounded-full bg-slate-600 peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-primary/30"/>
             <div
@@ -171,7 +171,7 @@ function selectPreset(name: string) {
             <span class="text-sm text-slate-300">转换后删除原文件</span>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input v-model="settingsStore.settings.deleteOriginal" type="checkbox" class="sr-only peer"/>
+            <input v-model="settingsStore.settings.deleteOriginal" class="sr-only peer" type="checkbox"/>
             <div
                 class="w-9 h-5 rounded-full bg-slate-600 peer-checked:bg-primary transition-colors duration-200 peer-focus:ring-2 peer-focus:ring-primary/30"/>
             <div

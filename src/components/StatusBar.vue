@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import {computed} from 'vue';
 import {useSettingsStore} from '@/stores/settings';
 import {Cpu, Terminal} from 'lucide-vue-next';
@@ -20,16 +20,16 @@ const ffmpegLabel = computed(() => {
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-1.5">
         <div
-            class="w-1.5 h-1.5 rounded-full"
             :class="settingsStore.ffmpegAvailable ? 'bg-emerald-400 shadow-[0_0_4px_rgba(16,185,129,0.5)]' : 'bg-red-400 shadow-[0_0_4px_rgba(239,68,68,0.5)]'"
+            class="w-1.5 h-1.5 rounded-full"
         />
         <Terminal :size="11" class="text-slate-500"/>
         <span class="text-slate-500">{{ ffmpegLabel }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div
-            class="w-1.5 h-1.5 rounded-full"
             :class="settingsStore.gpuInfo.available ? 'bg-emerald-400 shadow-[0_0_4px_rgba(16,185,129,0.5)]' : 'bg-yellow-400 shadow-[0_0_4px_rgba(245,158,11,0.5)]'"
+            class="w-1.5 h-1.5 rounded-full"
         />
         <Cpu :size="11" class="text-slate-500"/>
         <span class="text-slate-500">{{ gpuLabel }}</span>

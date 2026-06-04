@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import TitleBar from './components/TitleBar.vue';
-import StatusBar from './components/StatusBar.vue';
-import HomeView from './views/HomeView.vue';
+<script lang="ts" setup>
+import TitleBar from '@/components/TitleBar.vue';
+import StatusBar from '@/components/StatusBar.vue';
+import HomeView from '@/views/HomeView.vue';
 </script>
 
 <template>
