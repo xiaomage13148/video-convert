@@ -14,6 +14,7 @@ export interface FFmpegOptions {
   inputPath: string
   outputPath: string
   codec: string
+  audioCodec: string
   duration: number
   settings: {
     encoder: string
@@ -72,13 +73,28 @@ export function getVideoDuration(filePath: string): Promise<number> {
   })
 }
 
+// 检测音频编码
+export function detectAudioCodec(filePath: string): Promise<string> {
+  return new Promise((resolve) => {
+    const cmd = `ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "${filePath}"`
+    exec(cmd, { maxBuffer: 1024 * 1024 }, (error, stdout) => {
+      if (error) {
+        resolve('unknown')
+      } else {
+        resolve(stdout.trim() || 'unknown')
+      }
+    })
+  })
+}
+
 // 获取视频信息
 export async function getVideoInfo(filePath: string) {
-  const [codec, duration] = await Promise.all([
+  const [codec, duration, audioCodec] = await Promise.all([
     detectVideoCodec(filePath),
     getVideoDuration(filePath),
+    detectAudioCodec(filePath),
   ])
-  return { codec, duration }
+  return { codec, duration, audioCodec }
 }
 
 // 构建 FFmpeg 参数
@@ -134,7 +150,9 @@ export function buildFFmpegArgs(options: FFmpegOptions): string[] {
   args.push('-movflags', '+faststart')
 
   // 音频
-  if (settings.audioCopy) {
+  // Opus 等格式在部分播放器中不支持，即使用户选择复制也需转码
+  const needAudioTranscode = options.audioCodec === 'opus' || options.audioCodec === 'vorbis' || options.audioCodec === 'flac'
+  if (settings.audioCopy && !needAudioTranscode) {
     args.push('-c:a', 'copy')
   } else {
     args.push('-c:a', 'aac', '-b:a', '192k')

@@ -74,7 +74,11 @@ export class Converter {
   }
 
   updateOptions(options: Partial<ConverterOptions>) {
-    this.options = { ...this.options, ...options }
+    this.options = {
+      ...this.options,
+      ...options,
+      settings: { ...this.options.settings, ...(options.settings || {}) },
+    }
   }
 
   private send(channel: string, data: any) {
@@ -167,11 +171,11 @@ export class Converter {
 
   private async processTask(task: ConvertTask) {
     try {
-      // 检测视频编码和时长
+      // 检测视频编码、音频编码和时长
       const info = await getVideoInfo(task.inputPath)
       task.codec = info.codec
       task.duration = info.duration
-      debugLog(`Task ${task.fileName}: codec=${info.codec}, duration=${info.duration}`)
+      debugLog(`Task ${task.fileName}: codec=${info.codec}, audioCodec=${info.audioCodec}, duration=${info.duration}`)
 
       task.status = 'converting'
       debugLog(`Task ${task.fileName}: starting conversion`)
@@ -189,6 +193,7 @@ export class Converter {
         inputPath: task.inputPath,
         outputPath: task.outputPath,
         codec: task.codec,
+        audioCodec: info.audioCodec,
         duration: task.duration,
         settings: this.options.settings,
         onProgress: (progress: FFmpegProgress) => {

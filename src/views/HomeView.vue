@@ -22,18 +22,18 @@ const isDragOver = ref(false);
 // 注册 IPC 事件
 onMounted(async () => {
   try {
-    // 检测环境
+    // 先加载保存的设置
+    const savedSettings = await electron.loadSettings();
+    if (savedSettings) {
+      settingsStore.updateSettings(savedSettings);
+    }
+
+    // 再检测环境，setGPUInfo 会在无 GPU 时正确覆盖编码器设置
     const gpuInfo = await electron.getGPUInfo();
     settingsStore.setGPUInfo(gpuInfo);
 
     const ffmpegStatus = await electron.checkFFmpeg();
     settingsStore.setFFmpegStatus(ffmpegStatus.available, ffmpegStatus.path);
-
-    // 加载设置
-    const savedSettings = await electron.loadSettings();
-    if (savedSettings) {
-      settingsStore.updateSettings(savedSettings);
-    }
   } catch (e) {
     console.error('初始化失败:', e);
   }
@@ -108,13 +108,18 @@ async function handleStart() {
   convertStore.isConverting = true;
   convertStore.isPaused = false;
 
-  const rawSettings = toRaw(settingsStore.settings);
-  await electron.startConvert(selectedFiles, {
-    ...rawSettings,
-  });
+  try {
+    const rawSettings = toRaw(settingsStore.settings);
+    await electron.startConvert(selectedFiles, {
+      ...rawSettings,
+    });
 
-  // 保存设置
-  await electron.saveSettings(rawSettings);
+    // 保存设置
+    await electron.saveSettings(rawSettings);
+  } catch (e) {
+    console.error('转换启动失败:', e);
+    convertStore.isConverting = false;
+  }
 }
 
 async function handlePause() {

@@ -100,7 +100,23 @@ function registerIpcHandlers() {
 
   // 转换控制
   ipcMain.handle(IPC_CHANNELS.CONVERT_START, (_, files: string[], settings: any) => {
-    return converter.startConversion(files, settings)
+    // 前端发来扁平的 ConvertSettings，转换为嵌套的 ConverterOptions
+    const options = {
+      concurrency: settings.concurrency ?? 3,
+      deleteOriginal: settings.deleteOriginal ?? true,
+      outputDir: settings.outputDir ?? '',
+      settings: {
+        encoder: settings.encoder ?? 'libx264',
+        preset: settings.preset ?? 'medium',
+        quality: settings.quality ?? 23,
+        maxBitrate: settings.maxBitrate ?? '0',
+        profile: settings.profile ?? 'high',
+        level: settings.level ?? '5.1',
+        audioCopy: settings.audioCopy ?? true,
+        cudaEnabled: settings.cudaEnabled ?? false,
+      },
+    }
+    return converter.startConversion(files, options)
   })
   ipcMain.handle(IPC_CHANNELS.CONVERT_PAUSE, () => converter.pause())
   ipcMain.handle(IPC_CHANNELS.CONVERT_RESUME, () => converter.resume())

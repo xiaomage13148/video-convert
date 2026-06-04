@@ -117,6 +117,16 @@ export const useSettingsStore = defineStore('settings', () => {
         if (preset) {
             settings.value = {...settings.value, ...preset.settings};
             activePreset.value = presetName;
+            // 无 GPU 时，确保不使用 NVENC 编码器和 NVENC preset
+            if (!gpuInfo.value.available) {
+                settings.value.cudaEnabled = false;
+                if (settings.value.encoder.includes('nvenc')) {
+                    settings.value.encoder = 'libx264';
+                }
+                if (settings.value.preset.startsWith('p') && /^p[1-7]$/.test(settings.value.preset)) {
+                    settings.value.preset = 'medium';
+                }
+            }
         }
     }
 
@@ -130,6 +140,10 @@ export const useSettingsStore = defineStore('settings', () => {
             settings.value.cudaEnabled = false;
             if (settings.value.encoder.includes('nvenc')) {
                 settings.value.encoder = 'libx264';
+            }
+            // NVENC preset (p1-p7) 对 libx264 无效，重置为 medium
+            if (settings.value.preset.startsWith('p') && /^p[1-7]$/.test(settings.value.preset)) {
+                settings.value.preset = 'medium';
             }
         }
     }
