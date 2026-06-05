@@ -100,7 +100,7 @@ loadRecentDirs();
 
         <div
             v-if="showRecent && filesStore.recentDirs.length > 0"
-            class="absolute top-full left-0 right-0 mt-1 glass-panel p-1 z-50 animate-slide-up"
+            class="absolute top-full left-0 right-0 mt-1 glass-panel p-1 z-[100] animate-slide-up"
         >
           <div class="px-3 py-1.5 text-xs text-slate-500 flex items-center gap-1">
             <Clock :size="12"/>

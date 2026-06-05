@@ -149,7 +149,7 @@ async function handleRetry() {
       class="flex flex-col h-screen bg-[#0F0F1A]"
   >
     <!-- 目录选择 -->
-    <div class="p-4 pb-2">
+    <div class="p-4 pb-2 relative z-30">
       <DirSelector/>
     </div>
 
