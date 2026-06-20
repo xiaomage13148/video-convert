@@ -169,6 +169,16 @@ export class Converter {
     }
   }
 
+  // 清理单个任务的节流缓存和进程引用，释放内存
+  private cleanupTask(task: ConvertTask) {
+    this.progressThrottleMap.delete(task.id)
+    this.logThrottleMap.delete(task.id)
+    if (task.process) {
+      task.process.removeAllListeners()
+      task.process = null
+    }
+  }
+
   private async processTask(task: ConvertTask) {
     try {
       // 检测视频编码、音频编码和时长
@@ -279,6 +289,9 @@ export class Converter {
         message: `转换失败: ${err.message}`,
         timestamp: Date.now(),
       })
+    } finally {
+      // 无论成功失败，都清理该任务的缓存和进程引用
+      this.cleanupTask(task)
     }
   }
 

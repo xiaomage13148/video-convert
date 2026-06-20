@@ -241,7 +241,8 @@ function spawnFFmpegProcess(
   let firstProgressLogged = false
 
   proc.stderr.on('data', (data: Buffer) => {
-    stderrBuffer += data.toString()
+    const text = data.toString()
+    stderrBuffer += text
     const lines = stderrBuffer.split('\r')
     const lastLine = lines[lines.length - 1]
 
@@ -257,7 +258,6 @@ function spawnFFmpegProcess(
     }
 
     if (options.onLog) {
-      const text = data.toString()
       if (text.includes('frame=') || text.includes('error') || text.includes('Error')) {
         options.onLog(text.trim())
       }
@@ -270,6 +270,10 @@ function spawnFFmpegProcess(
 
   const promise = new Promise<void>((resolve, reject) => {
     proc.on('close', (code) => {
+      // 进程结束后立即释放事件监听，允许 GC 回收关联的 Buffer
+      proc.stderr.removeAllListeners()
+      proc.removeAllListeners()
+      stderrBuffer = ''
       if (code === 0) {
         resolve()
       } else {
@@ -277,6 +281,9 @@ function spawnFFmpegProcess(
       }
     })
     proc.on('error', (err) => {
+      proc.stderr.removeAllListeners()
+      proc.removeAllListeners()
+      stderrBuffer = ''
       reject(new Error(`FFmpeg process error: ${err.message}`))
     })
   })
