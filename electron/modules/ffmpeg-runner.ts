@@ -105,8 +105,8 @@ export function buildFFmpegArgs(options: FFmpegOptions): string[] {
 
   // TS 容错：忽略解码错误，避免遇到损坏帧直接退出
   args.push('-err_detect', 'ignore_err')
-  // 修复 TS 文件中常见的 DTS/PTS 时间戳问题
-  args.push('-fflags', '+genpts+igndts')
+  // 忽略异常 DTS 时间戳（不使用 +genpts，避免不必要的性能开销）
+  args.push('-fflags', '+igndts')
 
   // 硬件加速
   if (settings.cudaEnabled) {
