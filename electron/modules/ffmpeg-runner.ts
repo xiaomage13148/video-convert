@@ -1,4 +1,5 @@
 import { spawn, exec } from 'child_process'
+import fs from 'fs'
 import path from 'path'
 
 export interface FFmpegProgress {
@@ -102,6 +103,11 @@ export function buildFFmpegArgs(options: FFmpegOptions): string[] {
   const { inputPath, outputPath, codec, settings } = options
   const args: string[] = []
 
+  // TS 容错：忽略解码错误，避免遇到损坏帧直接退出
+  args.push('-err_detect', 'ignore_err')
+  // 修复 TS 文件中常见的 DTS/PTS 时间戳问题
+  args.push('-fflags', '+genpts+igndts')
+
   // 硬件加速
   if (settings.cudaEnabled) {
     args.push('-hwaccel', 'cuda')
@@ -121,8 +127,17 @@ export function buildFFmpegArgs(options: FFmpegOptions): string[] {
     }
   }
 
+  // TS 文件可能被 FFmpeg 误识别为 PNG，强制指定输入格式
+  const ext = path.extname(inputPath).toLowerCase()
+  if (ext === '.ts' || ext === '.mts' || ext === '.m2ts') {
+    args.push('-f', 'mpegts')
+  }
+
   // 输入文件
   args.push('-i', inputPath)
+
+  // 显式只选择视频和音频流，跳过其他流（如位图字幕/数据流），避免 PNG 解码器报错
+  args.push('-map', '0:v', '-map', '0:a?')
 
   // 视频编码器
   args.push('-c:v', settings.encoder)
@@ -158,8 +173,11 @@ export function buildFFmpegArgs(options: FFmpegOptions): string[] {
     args.push('-c:a', 'aac', '-b:a', '192k')
   }
 
-  // 字幕
-  args.push('-c:s', 'copy')
+  // 跳过字幕流，避免位图字幕（DVB subtitles）触发 PNG 解码器报错导致 FFmpeg 退出
+  args.push('-sn')
+
+  // 防止 muxing 队列溢出导致退出（输出选项，必须在输出文件之前）
+  args.push('-max_muxing_queue_size', '4096')
 
   // 输出文件
   args.push('-y', outputPath)
@@ -207,13 +225,14 @@ function parseProgress(stderr: string, duration: number): FFmpegProgress | null 
   }
 }
 
-// 运行 FFmpeg 转换
-export function runFFmpeg(options: FFmpegOptions): {
+// 启动单次 FFmpeg 进程
+function spawnFFmpegProcess(
+  args: string[],
+  options: FFmpegOptions,
+): {
   promise: Promise<void>
   process: ReturnType<typeof spawn>
 } {
-  const args = buildFFmpegArgs(options)
-
   const proc = spawn('ffmpeg', args, {
     stdio: ['pipe', 'pipe', 'pipe'],
   })
@@ -238,14 +257,12 @@ export function runFFmpeg(options: FFmpegOptions): {
     }
 
     if (options.onLog) {
-      // 只输出关键信息行
       const text = data.toString()
       if (text.includes('frame=') || text.includes('error') || text.includes('Error')) {
         options.onLog(text.trim())
       }
     }
 
-    // 保持缓冲区不要太大
     if (stderrBuffer.length > 10000) {
       stderrBuffer = stderrBuffer.slice(-5000)
     }
@@ -265,4 +282,57 @@ export function runFFmpeg(options: FFmpegOptions): {
   })
 
   return { promise, process: proc }
+}
+
+// 运行 FFmpeg 转换，CUDA 失败时自动回退 CPU
+export function runFFmpeg(options: FFmpegOptions): {
+  promise: Promise<void>
+  process: ReturnType<typeof spawn>
+} {
+  const args = buildFFmpegArgs(options)
+  const useCuda = options.settings.cudaEnabled
+
+  // 清理上一次残留的输出文件，避免回退时 -y 报错
+  try {
+    if (fs.existsSync(options.outputPath)) {
+      fs.unlinkSync(options.outputPath)
+    }
+  } catch {
+    // 忽略清理失败
+  }
+
+  const { promise: firstPromise, process: firstProc } = spawnFFmpegProcess(args, options)
+
+  const finalPromise = firstPromise.catch((err) => {
+    // CUDA 解码失败时回退到 CPU
+    if (useCuda) {
+      console.log(`[FFmpeg] CUDA decoding failed (${err.message}), falling back to CPU...`)
+      if (options.onLog) {
+        options.onLog('CUDA 解码失败，自动回退到 CPU 解码...')
+      }
+
+      const cpuOptions = { ...options, settings: { ...options.settings, cudaEnabled: false } }
+      const cpuArgs = buildFFmpegArgs(cpuOptions)
+
+      // 清理 CUDA 失败产生的残缺文件
+      try {
+        if (fs.existsSync(options.outputPath)) {
+          fs.unlinkSync(options.outputPath)
+        }
+      } catch {
+        // 忽略
+      }
+
+      const { promise: cpuPromise, process: cpuProc } = spawnFFmpegProcess(cpuArgs, options)
+
+      // 替换外部持有的 process 引用，使取消功能仍然有效
+      firstProc.removeAllListeners()
+      Object.assign(firstProc, cpuProc)
+
+      return cpuPromise
+    }
+    throw err
+  })
+
+  return { promise: finalPromise, process: firstProc }
 }
