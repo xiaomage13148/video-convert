@@ -1,4 +1,4 @@
-import { spawn, exec } from 'child_process'
+import { spawn, exec, type ChildProcess } from 'child_process'
 import fs from 'fs'
 import path from 'path'
 
@@ -29,6 +29,12 @@ export interface FFmpegOptions {
   }
   onProgress?: (progress: FFmpegProgress) => void
   onLog?: (log: string) => void
+  /**
+   * 每次实际启动 FFmpeg 进程时回调（含 CUDA 回退后的 CPU 进程）。
+   * 调用方通过该回调持有当前进程引用，用于取消；
+   * 不能通过返回值传递进程，否则回退启动新进程后调用方引用会失效。
+   */
+  onProcess?: (proc: ChildProcess) => void
 }
 
 // 检测视频编码
@@ -231,7 +237,7 @@ function spawnFFmpegProcess(
   options: FFmpegOptions,
 ): {
   promise: Promise<void>
-  process: ReturnType<typeof spawn>
+  process: ChildProcess
 } {
   const proc = spawn('ffmpeg', args, {
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -294,7 +300,6 @@ function spawnFFmpegProcess(
 // 运行 FFmpeg 转换，CUDA 失败时自动回退 CPU
 export function runFFmpeg(options: FFmpegOptions): {
   promise: Promise<void>
-  process: ReturnType<typeof spawn>
 } {
   const args = buildFFmpegArgs(options)
   const useCuda = options.settings.cudaEnabled
@@ -309,6 +314,8 @@ export function runFFmpeg(options: FFmpegOptions): {
   }
 
   const { promise: firstPromise, process: firstProc } = spawnFFmpegProcess(args, options)
+  // 通过回调把进程引用交给调用方（用于取消），而非通过返回值
+  options.onProcess?.(firstProc)
 
   const finalPromise = firstPromise.catch((err) => {
     // CUDA 解码失败时回退到 CPU
@@ -331,15 +338,13 @@ export function runFFmpeg(options: FFmpegOptions): {
       }
 
       const { promise: cpuPromise, process: cpuProc } = spawnFFmpegProcess(cpuArgs, options)
-
-      // 替换外部持有的 process 引用，使取消功能仍然有效
-      firstProc.removeAllListeners()
-      Object.assign(firstProc, cpuProc)
+      // 回退进程同样通过回调同步给调用方，确保取消功能仍然有效
+      options.onProcess?.(cpuProc)
 
       return cpuPromise
     }
     throw err
   })
 
-  return { promise: finalPromise, process: firstProc }
+  return { promise: finalPromise }
 }

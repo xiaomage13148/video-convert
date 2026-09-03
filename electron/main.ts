@@ -170,3 +170,8 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+// 退出前终止所有运行中的 FFmpeg 子进程，避免孤儿进程在后台继续转码
+app.on('before-quit', () => {
+  converter.cancel()
+})

@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron'
 import fs from 'fs'
 import path from 'path'
+import type { ChildProcess } from 'child_process'
 import { runFFmpeg, getVideoInfo, type FFmpegProgress } from './ffmpeg-runner'
 import { getOutputPath, checkOutputExists } from './scanner'
 import { IPC_CHANNELS } from '../ipc/channels'
@@ -22,7 +23,7 @@ export interface ConvertTask {
   codec: string
   duration: number
   error?: string
-  process?: ReturnType<typeof import('child_process').spawn> | null
+  process?: ChildProcess | null
 }
 
 interface ConverterOptions {
@@ -183,6 +184,9 @@ export class Converter {
     try {
       // 检测视频编码、音频编码和时长
       const info = await getVideoInfo(task.inputPath)
+      // 探测期间任务可能已被取消，直接退出，避免下方把取消状态覆盖为 converting
+      if (task.status === 'cancelled') return
+
       task.codec = info.codec
       task.duration = info.duration
       debugLog(`Task ${task.fileName}: codec=${info.codec}, audioCodec=${info.audioCodec}, duration=${info.duration}`)
@@ -198,14 +202,22 @@ export class Converter {
         duration: task.duration,
       })
 
-      // 确保 FFmpeg 使用 spawn 而非 exec
-      const { promise, process: proc } = runFFmpeg({
+      const { promise } = runFFmpeg({
         inputPath: task.inputPath,
         outputPath: task.outputPath,
         codec: task.codec,
         audioCodec: info.audioCodec,
         duration: task.duration,
         settings: this.options.settings,
+        // 进程引用通过回调获取：CUDA 回退启动新进程时引用能同步更新，保证取消始终有效
+        onProcess: (proc) => {
+          // 取消发生在进程启动前（如 CUDA 回退的窗口期），直接终止新进程，避免孤儿进程
+          if (task.status === 'cancelled') {
+            proc.kill('SIGKILL')
+            return
+          }
+          task.process = proc
+        },
         onProgress: (progress: FFmpegProgress) => {
           task.progress = progress.percent
           task.speed = progress.speed
@@ -229,7 +241,6 @@ export class Converter {
         },
       })
 
-      task.process = proc
       await promise
 
       // 转换成功
@@ -262,6 +273,19 @@ export class Converter {
         progress: 100,
       })
     } catch (err: any) {
+      // 任务已被取消：cancel() kill 进程导致 promise reject，不按失败处理
+      if (task.status === 'cancelled') {
+        // 仅清理残缺的输出文件
+        try {
+          if (fs.existsSync(task.outputPath)) {
+            fs.unlinkSync(task.outputPath)
+          }
+        } catch {
+          // 清理失败不影响
+        }
+        return
+      }
+
       // 转换失败
       task.status = 'failed'
       task.error = err.message
