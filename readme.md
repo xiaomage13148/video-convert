@@ -102,6 +102,8 @@ npm run electron:build
 
 使用 electron-builder 打包为 Windows NSIS 安装程序，输出到 `release/` 目录。
 
+应用图标与标题栏共用 `build/icon.svg`（紫色渐变底、白色摄像机）。运行 `npm run generate-icons` 可生成 `build/icon.png`（1024×1024）及 `build/icon.ico`（16–256 多尺寸）；打包命令会自动生成，并用于 Windows 程序、快捷方式和窗口图标。
+
 构建前会验证两个程序均存在且可执行，再将其复制到安装目录的 `resources/`（`app.asar` 外）。应用优先使用内置程序，再查找系统 PATH 和常见安装目录；检测、视频信息读取和转码共用同一组路径。
 
 运行 `npm run test:ffmpeg` 可验证路径选择与探测逻辑；本地资源就绪时还会在清空 PATH 后执行真实转码测试。

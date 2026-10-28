@@ -28,6 +28,9 @@ function createWindow() {
     frame: false,
     backgroundColor: '#0F0F1A',
     titleBarStyle: 'hidden',
+    icon: app.isPackaged
+      ? path.join(process.resourcesPath, 'icon.png')
+      : path.join(app.getAppPath(), 'build/icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

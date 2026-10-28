@@ -14,11 +14,13 @@ extraResources:
     filter:
       - ffmpeg.exe
       - ffprobe.exe
+  - from: build/icon.png
+    to: icon.png
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 buildDependenciesFromSource: false
 win:
-  icon: build/icon.png
+  icon: build/icon.ico
   target:
     - nsis
 nsis:

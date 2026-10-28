@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {Minus, Square, X} from 'lucide-vue-next';
 import {useElectron} from '@/composables/useElectron';
+import appIcon from '../../build/icon.svg';
 
 const electron = useElectron();
 </script>
@@ -9,13 +10,7 @@ const electron = useElectron();
   <div class="flex items-center justify-between h-10 px-4 bg-[#0a0a14] border-b border-white/5 select-none"
        style="-webkit-app-region: drag">
     <div class="flex items-center gap-2">
-      <div class="w-5 h-5 rounded bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
-        <svg fill="none" height="12" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-             viewBox="0 0 24 24" width="12">
-          <polygon points="23 7 16 12 23 17 23 7"/>
-          <rect height="14" rx="2" ry="2" width="15" x="1" y="5"/>
-        </svg>
-      </div>
+      <img :src="appIcon" alt="" aria-hidden="true" class="w-5 h-5" width="20" height="20"/>
       <span class="text-sm font-medium text-slate-300">Video Convert Pro</span>
     </div>
     <div class="flex items-center gap-0.5" style="-webkit-app-region: no-drag">
