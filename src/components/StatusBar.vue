@@ -11,7 +11,7 @@ const gpuLabel = computed(() => {
 });
 
 const ffmpegLabel = computed(() => {
-  return settingsStore.ffmpegAvailable ? 'FFmpeg 已就绪' : 'FFmpeg 未安装';
+  return settingsStore.ffmpegAvailable ? 'FFmpeg 已就绪' : 'FFmpeg 不可用';
 });
 </script>
 
@@ -24,7 +24,7 @@ const ffmpegLabel = computed(() => {
             class="w-1.5 h-1.5 rounded-full"
         />
         <Terminal :size="11" class="text-slate-500"/>
-        <span class="text-slate-500">{{ ffmpegLabel }}</span>
+        <span :title="settingsStore.ffmpegPath" class="text-slate-500">{{ ffmpegLabel }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div

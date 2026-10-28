@@ -1,6 +1,7 @@
-import { spawn, exec, type ChildProcess } from 'child_process'
+import { spawn, execFile, type ChildProcess } from 'child_process'
 import fs from 'fs'
 import path from 'path'
+import { getFFmpegPaths } from './ffmpeg-paths'
 
 export interface FFmpegProgress {
   percent: number
@@ -40,8 +41,8 @@ export interface FFmpegOptions {
 // 检测视频编码
 export function detectVideoCodec(filePath: string): Promise<string> {
   return new Promise((resolve) => {
-    const cmd = `ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "${filePath}"`
-    exec(cmd, { maxBuffer: 1024 * 1024 }, (error, stdout) => {
+    const args = ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=codec_name', '-of', 'default=noprint_wrappers=1:nokey=1', filePath]
+    execFile(getFFmpegPaths().ffprobe, args, { maxBuffer: 1024 * 1024, windowsHide: true }, (error, stdout) => {
       if (error) {
         resolve('unknown')
       } else {
@@ -55,8 +56,8 @@ export function detectVideoCodec(filePath: string): Promise<string> {
 export function getVideoDuration(filePath: string): Promise<number> {
   return new Promise((resolve) => {
     // 先尝试标准方式
-    const cmd = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${filePath}"`
-    exec(cmd, { maxBuffer: 1024 * 1024 }, (error, stdout) => {
+    const args = ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', filePath]
+    execFile(getFFmpegPaths().ffprobe, args, { maxBuffer: 1024 * 1024, windowsHide: true }, (error, stdout) => {
       if (!error && stdout.trim()) {
         const duration = parseFloat(stdout.trim())
         if (!isNaN(duration) && duration > 0) {
@@ -65,8 +66,8 @@ export function getVideoDuration(filePath: string): Promise<number> {
         }
       }
       // 对于 .ts 等格式，尝试从流信息中获取
-      const cmd2 = `ffprobe -v error -show_entries stream=duration -of default=noprint_wrappers=1:nokey=1 -select_streams v:0 "${filePath}"`
-      exec(cmd2, { maxBuffer: 1024 * 1024 }, (error2, stdout2) => {
+      const fallbackArgs = ['-v', 'error', '-show_entries', 'stream=duration', '-of', 'default=noprint_wrappers=1:nokey=1', '-select_streams', 'v:0', filePath]
+      execFile(getFFmpegPaths().ffprobe, fallbackArgs, { maxBuffer: 1024 * 1024, windowsHide: true }, (error2, stdout2) => {
         if (!error2 && stdout2.trim()) {
           const duration = parseFloat(stdout2.trim())
           if (!isNaN(duration) && duration > 0) {
@@ -83,8 +84,8 @@ export function getVideoDuration(filePath: string): Promise<number> {
 // 检测音频编码
 export function detectAudioCodec(filePath: string): Promise<string> {
   return new Promise((resolve) => {
-    const cmd = `ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=noprint_wrappers=1:nokey=1 "${filePath}"`
-    exec(cmd, { maxBuffer: 1024 * 1024 }, (error, stdout) => {
+    const args = ['-v', 'error', '-select_streams', 'a:0', '-show_entries', 'stream=codec_name', '-of', 'default=noprint_wrappers=1:nokey=1', filePath]
+    execFile(getFFmpegPaths().ffprobe, args, { maxBuffer: 1024 * 1024, windowsHide: true }, (error, stdout) => {
       if (error) {
         resolve('unknown')
       } else {
@@ -239,8 +240,9 @@ function spawnFFmpegProcess(
   promise: Promise<void>
   process: ChildProcess
 } {
-  const proc = spawn('ffmpeg', args, {
+  const proc = spawn(getFFmpegPaths().ffmpeg, args, {
     stdio: ['pipe', 'pipe', 'pipe'],
+    windowsHide: true,
   })
 
   let stderrBuffer = ''

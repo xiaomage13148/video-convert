@@ -9,9 +9,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test:ffmpeg": "node --test tests/ffmpeg.test.cjs",
+    "prepare:ffmpeg": "node scripts/prepare-ffmpeg.cjs",
     "postinstall": "cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ electron-builder install-app-deps",
     "generate-icons": "node build/generate-icons.mjs",
-    "electron:build": "vite build && cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder --win"
+    "electron:build": "npm run prepare:ffmpeg && vite build && cross-env ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/ ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/ electron-builder --win"
   },
   "dependencies": {
     "lucide-vue-next": "^0.344.0",

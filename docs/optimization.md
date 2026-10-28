@@ -76,6 +76,8 @@ export function runFFmpeg(options: FFmpegOptions & {
 
 ### 3. FFmpeg 检测到的路径与实际调用脱节
 
+> ✅ **已修复（2026-10-28）**：新增 `ffmpeg-paths.ts` 统一解析并缓存 FFmpeg/FFprobe 路径。内置 resources 优先，其次 PATH 和常见安装目录；可用性检测、探测和转码共用同一组路径，并校验两个程序均可启动。
+
 - **位置**：`electron/modules/gpu-detector.ts`（`checkFFmpeg` 搜索了 `C:\ffmpeg\bin` 等常见路径）、`electron/modules/ffmpeg-runner.ts` L236（`spawn('ffmpeg', args)`）、L37/52/62/80（`ffprobe`）
 
 - **问题**：`checkFFmpeg` 找到的完整路径只用于界面展示；实际转换/探测仍直接 `spawn('ffmpeg')`，完全依赖 `PATH` 环境变量。
@@ -142,6 +144,8 @@ app.on('before-quit', () => {
 - **修复**：改用 Electron 的 `shell.trashItem(task.inputPath)` 移入回收站，给用户反悔余地；性能差异可忽略（每文件一次调用）。
 
 ### 8. ffprobe 用 `exec` + 字符串拼接路径
+
+> ✅ **已修复（2026-10-28）**：所有 FFprobe 调用改为 `execFile` 和参数数组，时长回退探测同样使用统一路径，支持中文、空格及 shell 特殊字符文件名。
 
 - **位置**：`electron/modules/ffmpeg-runner.ts` L37、L52、L62、L80
 
@@ -229,6 +233,8 @@ execFile('ffprobe', [
 ## P3 体验与工程化
 
 ### 17. 打包产物不包含 FFmpeg（分发最大短板）
+
+> ✅ **已修复（2026-10-28）**：通过 `extraResources` 将 `resources/ffmpeg.exe` 和 `resources/ffprobe.exe` 放在 `app.asar` 外。新增资源导入脚本及 `beforePack` 校验，资源缺失或不能执行时中止打包。
 
 - **位置**：`electron-builder.yml`（`files` 仅 `dist`/`dist-electron`）
 

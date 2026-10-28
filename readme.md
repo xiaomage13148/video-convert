@@ -64,8 +64,7 @@
 ### 必需
 
 - **Node.js** >= 16
-- **FFmpeg** — 需安装并配置到系统环境变量，确保 `ffmpeg` 和 `ffprobe` 命令可用
-  - 安装参考：[Windows FFmpeg 安装教程](https://blog.csdn.net/csdn_yudong/article/details/129182648)
+- **FFmpeg** — Windows 安装包已内置 `ffmpeg.exe` 和 `ffprobe.exe`，使用时无需额外安装或配置 PATH。开发及打包前需先准备下述资源。
 
 ### 可选
 
@@ -81,6 +80,14 @@ npm install
 
 ### 开发模式
 
+首次检出项目时，先将两个程序导入本项目的 `resources/` 目录：
+
+```powershell
+npm run prepare:ffmpeg -- "D:/MyData/MyWork/2026/Code/video-lens/resources"
+```
+
+也可传入其他包含 `ffmpeg.exe` 和 `ffprobe.exe` 的目录。导入后开发和打包均使用本地副本，不再依赖原目录。二进制文件未纳入 Git，换机器或 CI 构建前需要重新准备。
+
 ```bash
 npm run dev
 ```
@@ -94,6 +101,10 @@ npm run electron:build
 ```
 
 使用 electron-builder 打包为 Windows NSIS 安装程序，输出到 `release/` 目录。
+
+构建前会验证两个程序均存在且可执行，再将其复制到安装目录的 `resources/`（`app.asar` 外）。应用优先使用内置程序，再查找系统 PATH 和常见安装目录；检测、视频信息读取和转码共用同一组路径。
+
+运行 `npm run test:ffmpeg` 可验证路径选择与探测逻辑；本地资源就绪时还会在清空 PATH 后执行真实转码测试。
 
 ### 仅构建前端
 
@@ -163,7 +174,7 @@ npm run build
 | 图标库 | lucide-vue-next | 0.344 |
 | 开发语言 | TypeScript | 5.3 |
 | 打包工具 | electron-builder | 24.9 |
-| 视频处理 | FFmpeg（外部调用） | 系统安装版 |
+| 视频处理 | FFmpeg（子进程调用） | 安装包内置版优先 |
 
 ## 项目结构
 
@@ -177,6 +188,7 @@ video-convert/
 │   └── modules/
 │       ├── converter.ts             # 转换任务队列与调度引擎
 │       ├── ffmpeg-runner.ts         # FFmpeg 进程管理与进度解析
+│       ├── ffmpeg-paths.ts          # 内置资源与系统程序路径解析
 │       ├── gpu-detector.ts          # NVIDIA GPU & FFmpeg 可用性检测
 │       ├── scanner.ts               # 目录扫描，识别支持的视频文件
 │       └── settings-store.ts        # 用户设置持久化（JSON 文件）
@@ -212,6 +224,8 @@ video-convert/
 ├── docs/
 │   ├── plans.md                     # 项目规划文档
 │   └── requirements.md              # 需求规格文档
+├── resources/                       # ffmpeg.exe / ffprobe.exe 打包资源
+├── scripts/prepare-ffmpeg.cjs        # 资源导入与打包前校验
 ├── electron-builder.yml             # 打包配置
 ├── vite.config.ts                   # Vite 构建配置
 ├── tailwind.config.js               # Tailwind CSS 配置
@@ -222,7 +236,7 @@ video-convert/
 
 ## 注意事项
 
-1. **FFmpeg 依赖** — 应用本身不包含 FFmpeg，需预先安装并确保在系统 PATH 中
+1. **FFmpeg 资源** — 安装包内置 FFmpeg；开发和打包前需准备 `resources/ffmpeg.exe` 与 `resources/ffprobe.exe`，分发时遵守相应构建的许可证及源码提供要求
 2. **磁盘空间** — 转换过程需要额外磁盘空间存放输出文件，建议预留充足空间
 3. **显卡驱动** — 使用 CUDA 加速时，建议安装最新的 NVIDIA 显卡驱动
 4. **文件路径** — 支持包含中文和空格的文件路径
@@ -232,7 +246,7 @@ video-convert/
 
 | 问题 | 解决方案 |
 |------|----------|
-| FFmpeg 未找到 | 检查 FFmpeg 是否已安装并配置到系统 PATH 环境变量 |
+| FFmpeg 不可用 | 确认安装目录的 resources 中包含可执行的 ffmpeg.exe 与 ffprobe.exe；开发环境可运行资源导入命令 |
 | CUDA 不可用 | 更新 NVIDIA 显卡驱动至最新版本，或在设置中切换为 CPU 编码 |
 | 转换失败 | 检查输入文件是否损坏，查看日志面板获取详细错误信息 |
 | 应用启动慢 | 首次启动时 GPU 检测可能需要几秒，请耐心等待 |

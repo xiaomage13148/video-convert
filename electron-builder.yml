@@ -7,6 +7,13 @@ files:
   - dist/**/*
   - dist-electron/**/*
   - "!node_modules"
+beforePack: ./scripts/prepare-ffmpeg.cjs
+extraResources:
+  - from: resources
+    to: .
+    filter:
+      - ffmpeg.exe
+      - ffprobe.exe
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
 buildDependenciesFromSource: false
