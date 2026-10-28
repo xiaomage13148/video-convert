@@ -10,6 +10,7 @@ dist-electron/
 build/
 out/
 release/
+resources/*.exe
 
 # IDE
 .idea/
