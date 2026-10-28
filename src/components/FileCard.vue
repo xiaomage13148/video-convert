@@ -33,8 +33,14 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase();
 
 <template>
   <div
-      :class="{ 'ring-1 ring-primary/30': file.selected && !status }"
-      class="glass-panel glass-panel-hover p-3 flex items-center gap-3 transition-all duration-200 animate-fade-in"
+      :class="{ 'is-selected': file.selected && !status, 'cursor-pointer': !status }"
+      :tabindex="!status ? 0 : undefined"
+      :role="!status ? 'checkbox' : undefined"
+      :aria-checked="!status ? file.selected : undefined"
+      :aria-label="file.name"
+      class="file-row p-3 flex items-center gap-3 transition-colors duration-150"
+      @keydown.space.prevent="!status && emit('toggle', file.path)"
+      @keydown.enter.prevent="!status && emit('toggle', file.path)"
       @click="!status && emit('toggle', file.path)"
   >
     <!-- 勾选框 -->
@@ -61,14 +67,14 @@ const formatExt = (ext: string) => ext.replace('.', '').toUpperCase();
     <!-- 文件信息 -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-2">
-        <span class="text-sm text-slate-200 truncate">{{ file.name }}</span>
+        <span :title="file.path" class="text-[13px] text-slate-200 truncate">{{ file.name }}</span>
         <span class="flex-shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-500/15 text-purple-300">
           {{ formatExt(file.ext) }}
         </span>
       </div>
       <div class="flex items-center gap-3 mt-1">
-        <span class="text-xs text-slate-500">{{ file.sizeFormatted }}</span>
-        <span v-if="file.codec" class="text-xs text-slate-500">{{ file.codec }}</span>
+        <span class="text-[11px] text-slate-400">{{ file.sizeFormatted }}</span>
+        <span v-if="file.codec" class="text-[11px] text-slate-400">{{ file.codec }}</span>
       </div>
 
       <!-- 进度条 -->

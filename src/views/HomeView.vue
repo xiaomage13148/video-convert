@@ -146,20 +146,18 @@ async function handleRetry() {
 <template>
   <div
       :class="{ 'drag-highlight': isDragOver }"
-      class="flex flex-col h-screen bg-[#0F0F1A]"
+      class="workspace flex flex-col flex-1 overflow-hidden"
   >
     <!-- 目录选择 -->
-    <div class="p-4 pb-2 relative z-30">
+    <div class="relative z-30 shrink-0">
       <DirSelector/>
     </div>
 
     <!-- 全局进度 -->
-    <div class="px-4 pb-2">
-      <GlobalProgress/>
-    </div>
+    <GlobalProgress class="shrink-0"/>
 
     <!-- 控制栏 -->
-    <div class="px-4 pb-2">
+    <div class="shrink-0">
       <ControlBar
           @cancel="handleCancel"
           @pause="handlePause"
@@ -171,12 +169,12 @@ async function handleRetry() {
     </div>
 
     <!-- 文件列表 -->
-    <div class="flex-1 px-4 mb-2 overflow-hidden">
+    <div class="flex-1 min-h-0 overflow-hidden">
       <FileList/>
     </div>
 
     <!-- 日志面板 -->
-    <div class="px-4 pb-2">
+    <div class="shrink-0">
       <LogPanel/>
     </div>
 

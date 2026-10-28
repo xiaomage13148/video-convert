@@ -16,7 +16,7 @@ const ffmpegLabel = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between px-4 py-1.5 bg-[#0a0a14] border-t border-white/5 text-[11px]">
+  <div class="flex shrink-0 items-center justify-between px-5 h-8 bg-[#0c0c16] border-t border-white/5 text-[11px]">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-1.5">
         <div
@@ -24,7 +24,7 @@ const ffmpegLabel = computed(() => {
             class="w-1.5 h-1.5 rounded-full"
         />
         <Terminal :size="11" class="text-slate-500"/>
-        <span :title="settingsStore.ffmpegPath" class="text-slate-500">{{ ffmpegLabel }}</span>
+        <span :title="settingsStore.ffmpegPath" class="text-slate-400">{{ ffmpegLabel }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div
@@ -32,7 +32,7 @@ const ffmpegLabel = computed(() => {
             class="w-1.5 h-1.5 rounded-full"
         />
         <Cpu :size="11" class="text-slate-500"/>
-        <span class="text-slate-500">{{ gpuLabel }}</span>
+        <span class="text-slate-400">{{ gpuLabel }}</span>
       </div>
     </div>
     <div class="text-slate-600">

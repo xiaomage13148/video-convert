@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {computed} from 'vue';
-import {Pause, Play, RotateCcw, Settings, Square} from 'lucide-vue-next';
+import {ChevronRight, Minus, Pause, Play, Plus, RotateCcw, Settings, Square} from 'lucide-vue-next';
 import {useFilesStore} from '@/stores/files';
 import {useConvertStore} from '@/stores/convert';
 import {useSettingsStore} from '@/stores/settings';
@@ -22,15 +22,16 @@ const canStart = computed(() => filesStore.selectedCount > 0 && !convertStore.is
 const isConverting = computed(() => convertStore.isConverting);
 const isPaused = computed(() => convertStore.isPaused);
 const hasFailed = computed(() => convertStore.failedCount > 0);
+const encoderLabel = computed(() => settingsStore.settings.encoder.includes('265') || settingsStore.settings.encoder.includes('hevc') ? 'H.265' : 'H.264');
 </script>
 
 <template>
-  <div class="glass-panel p-3 flex items-center gap-2">
+  <div class="glass-panel px-4 py-3 flex items-center gap-3">
     <!-- 开始/暂停按钮 -->
     <button
         v-if="!isConverting"
         :disabled="!canStart"
-        class="btn-glow flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-primary to-primary-light text-white rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+        class="ui-button ui-button-primary min-w-[132px]"
         @click="emit('start')"
     >
       <Play :size="16"/>
@@ -76,33 +77,42 @@ const hasFailed = computed(() => convertStore.failedCount > 0);
     </button>
 
     <!-- 右侧 -->
+    <div class="control-summary flex items-center gap-2 text-[11px] text-slate-400">
+      <span>{{ encoderLabel }}</span><ChevronRight :size="12" class="text-slate-600"/><span class="text-slate-300">MP4</span>
+      <span class="mx-1 text-slate-600">·</span>
+      <span v-if="filesStore.selectedCount">已选择 {{ filesStore.selectedCount }} 个文件</span>
+      <span v-else>选择文件后开始转换</span>
+    </div>
     <div class="ml-auto flex items-center gap-3">
-      <div class="flex items-center gap-2 text-xs text-slate-500">
-        <span>并发数:</span>
-        <div class="flex items-center gap-1">
+      <div class="flex items-center gap-2 text-[11px] text-slate-400">
+        <span>并行任务</span>
+        <div class="flex items-center gap-0.5 rounded-lg border border-white/5 bg-black/10 p-0.5">
           <button
               :disabled="settingsStore.settings.concurrency <= 1"
-              class="w-6 h-6 rounded bg-white/5 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-colors"
+              class="icon-button !h-6 !w-6"
+              aria-label="减少并行任务"
               @click="settingsStore.updateSettings({ concurrency: settingsStore.settings.concurrency - 1 })"
           >
-            -
+            <Minus :size="12"/>
           </button>
           <span class="w-6 text-center text-slate-300 font-mono">{{ settingsStore.settings.concurrency }}</span>
           <button
               :disabled="settingsStore.settings.concurrency >= 6"
-              class="w-6 h-6 rounded bg-white/5 text-slate-400 hover:bg-white/10 flex items-center justify-center transition-colors"
+              class="icon-button !h-6 !w-6"
+              aria-label="增加并行任务"
               @click="settingsStore.updateSettings({ concurrency: settingsStore.settings.concurrency + 1 })"
           >
-            +
+            <Plus :size="12"/>
           </button>
         </div>
       </div>
 
       <button
-          class="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+          class="ui-button"
           @click="emit('openSettings')"
       >
-        <Settings :size="18"/>
+        <Settings :size="14"/>
+        转换设置
       </button>
     </div>
   </div>

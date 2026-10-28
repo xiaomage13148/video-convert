@@ -1,13 +1,19 @@
 <script lang="ts" setup>
 import {computed, nextTick, ref, watch} from 'vue';
 import {useConvertStore} from '@/stores/convert';
-import {ArrowDown, Download, Search, Trash2} from 'lucide-vue-next';
+import {ArrowDown, ChevronDown, Download, Search, Terminal, Trash2} from 'lucide-vue-next';
+import AppSelect from '@/components/AppSelect.vue';
 
 const convertStore = useConvertStore();
 
 const searchQuery = ref('');
 const levelFilter = ref<string>('');
+const levelOptions = [
+  {value: '', label: '全部'}, {value: 'info', label: '信息'},
+  {value: 'warn', label: '警告'}, {value: 'error', label: '错误'},
+];
 const autoScroll = ref(true);
+const collapsed = ref(false);
 const logContainer = ref<HTMLElement | null>(null);
 
 const filteredLogs = computed(() => {
@@ -63,6 +69,9 @@ function scrollToBottom() {
 watch(() => convertStore.logs.length, () => {
   scrollToBottom();
 });
+watch(collapsed, (value) => {
+  if (!value) scrollToBottom();
+});
 
 async function exportLogs() {
   const content = convertStore.logs
@@ -80,63 +89,63 @@ async function exportLogs() {
 </script>
 
 <template>
-  <div class="glass-panel flex flex-col overflow-hidden" style="height: 220px;">
+  <section class="glass-panel log-panel flex flex-col overflow-hidden" :class="{'is-collapsed': collapsed}" aria-label="运行日志">
     <!-- 工具栏 -->
-    <div class="flex items-center gap-2 p-2 border-b border-white/5">
-      <div class="relative flex-1">
+    <div class="flex shrink-0 items-center gap-2 px-4 py-2 border-b border-white/5">
+      <button class="flex items-center gap-2 mr-auto py-1" :aria-expanded="!collapsed" aria-controls="conversion-logs" @click="collapsed = !collapsed">
+        <Terminal :size="14" class="text-violet-300"/><span class="panel-title">运行日志</span>
+        <span class="count-badge">{{ logCount }}</span>
+        <ChevronDown :size="13" :class="{'-rotate-90': collapsed}" class="text-slate-400 transition-transform"/>
+      </button>
+      <div class="relative w-52">
         <Search :size="12" class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500"/>
         <input
             v-model="searchQuery"
-            class="w-full pl-7 pr-2 py-1 bg-white/5 border border-white/5 rounded text-xs text-slate-300 placeholder-slate-600 focus:outline-none focus:border-primary/30"
-            placeholder="搜索日志..."
+            class="field !min-h-7 !py-1 !pl-7 w-full !text-[11px]"
+            placeholder="搜索日志…"
+            aria-label="搜索运行日志"
             type="text"
         />
       </div>
 
-      <select
-          v-model="levelFilter"
-          class="px-2 py-1 bg-white/5 border border-white/5 rounded text-xs text-slate-300 focus:outline-none appearance-none cursor-pointer"
-      >
-        <option value="">全部</option>
-        <option value="info">信息</option>
-        <option value="warn">警告</option>
-        <option value="error">错误</option>
-      </select>
+      <AppSelect id="log-level" v-model="levelFilter" :options="levelOptions" size="sm" class="w-[84px] shrink-0" aria-label="筛选日志级别"/>
 
       <button
-          class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+          class="icon-button !w-7 !h-7"
+          :disabled="!logCount"
           title="导出日志"
           @click="exportLogs"
       >
         <Download :size="14"/>
       </button>
       <button
-          class="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-white/5 transition-colors"
+          class="icon-button !w-7 !h-7"
+          :disabled="!logCount"
           title="清空日志"
           @click="convertStore.clearLogs()"
       >
         <Trash2 :size="14"/>
       </button>
       <button
-          :class="autoScroll ? 'text-primary hover:text-primary-light' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'"
-          class="p-1 rounded transition-colors"
+          :class="{'is-active': autoScroll}"
+          :aria-pressed="autoScroll"
+          class="icon-button !w-7 !h-7"
           title="自动滚动"
           @click="autoScroll = !autoScroll"
       >
         <ArrowDown :size="14"/>
       </button>
 
-      <span class="text-[11px] text-slate-600">{{ logCount }} 条</span>
     </div>
 
     <!-- 日志列表 -->
-    <div ref="logContainer" class="flex-1 overflow-y-auto p-2 font-mono text-[11px] space-y-0.5">
+    <div v-show="!collapsed" id="conversion-logs" ref="logContainer" class="flex-1 min-h-0 overflow-y-auto px-4 py-2 font-mono text-[11px] space-y-0.5">
       <div
           v-for="(log, i) in filteredLogs"
           :key="i"
-          class="flex items-start gap-2 py-0.5 px-1 rounded hover:bg-white/3 transition-colors"
+          class="flex items-start gap-3 py-1 px-1 rounded hover:bg-white/5 transition-colors"
       >
-        <span class="text-slate-600 flex-shrink-0">{{ formatTime(log.timestamp) }}</span>
+        <span class="text-slate-400 flex-shrink-0">{{ formatTime(log.timestamp) }}</span>
         <span
             :class="levelClass(log.level)"
             class="px-1 rounded text-[10px] font-medium flex-shrink-0"
@@ -145,9 +154,10 @@ async function exportLogs() {
         </span>
         <span class="text-slate-400 break-all">{{ log.message }}</span>
       </div>
-      <div v-if="filteredLogs.length === 0" class="text-center text-slate-600 py-4">
-        暂无日志
+      <div v-if="filteredLogs.length === 0" class="flex h-full items-center justify-center gap-2 text-[11px] font-sans text-slate-400">
+        <Terminal :size="14" class="text-slate-500"/>
+        {{ logCount ? '没有匹配的日志，试试其他筛选条件' : '等待转换任务，运行信息将在这里显示' }}
       </div>
     </div>
-  </div>
+  </section>
 </template>
